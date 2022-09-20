@@ -11,13 +11,20 @@ datasource db {
 }
 
 model Home {
-  id                  Int      @id @default(autoincrement())
+  id                  Int              @id @default(autoincrement())
   address             String
   number_of_bedrooms  Int
-  number_of_bathrooms Int
+  number_of_bathrooms Float
   city                String
-  listed_date         DateTime @default(now())
-  price               Int
-  land_size           Int
-  created_at          DateTime @default(now())
+  listed_date         DateTime         @default(now())
+  price               Float
+  land_size           Float
+  property_type       HomePropertyType
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @default(now())
+}
+
+enum HomePropertyType {
+  Residential
+  Cando
 }

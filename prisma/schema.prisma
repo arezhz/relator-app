@@ -10,4 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
- 
+model Home {
+  id                  Int      @id @default(autoincrement())
+  address             String
+  number_of_bedrooms  Int
+  number_of_bathrooms Int
+  city                String
+  listed_date         DateTime @default(now())
+  price               Int
+  land_size           Int
+  created_at          DateTime @default(now())
+}

@@ -21,10 +21,48 @@ model Home {
   land_size           Float
   property_type       HomePropertyType
   created_at          DateTime         @default(now())
-  updated_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+  Images              Images[]
+  message             Message[]
+  relator_id          Int              @unique
+  relator             User             @relation(fields: [relator_id], references: [id])
 }
 
 enum HomePropertyType {
-  Residential
-  Cando
+  RESIDENTIAL
+  CANDO
+}
+
+model Images {
+  id         Int      @id @default(autoincrement())
+  url        String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  home_id    Int
+  home       Home     @relation(fields: [home_id], references: [id])
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  phone      String
+  email      String
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user_type  UserType
+  homes      Home[]
+}
+
+enum UserType {
+  BUYER
+  RELATOR
+  ADMIN
+}
+
+model Message {
+  id       Int    @id @default(autoincrement())
+  messsage String
+  home_id  Int
+  home     Home   @relation(fields: [home_id], references: [id])
 }

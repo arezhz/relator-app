@@ -7,8 +7,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   signup(@Body() body: SignupDto) {
-    return 'this.authService.signup();';
+    return this.authService.signup(body);
   }
 }

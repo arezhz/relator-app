@@ -9,4 +9,4 @@ import { ConnectionModule } from './connection/connection.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

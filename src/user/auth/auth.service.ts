@@ -11,9 +11,8 @@ export class AuthService {
       where: { email },
     });
 
-    console.log({ existEmail });
-    // if (existEmail) {
-    //   throw new ConflictException();
-    // }
+    if (existEmail) {
+      throw new ConflictException();
+    }
   }
 }

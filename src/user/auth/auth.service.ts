@@ -4,16 +4,22 @@ import { ISignUpBody } from './models/i-auth.model';
 import * as forge from 'node-forge';
 import { UserType } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
+import { createHmac } from 'node:crypto';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly connectionService: ConnectionService) { }
 
   hasedPassword(password: string): string {
-    const hashPassword = forge.hmac.create();
-    hashPassword.start('sha256', process.env.PASSWORD_KEY);
-    hashPassword.update(password);
-    return hashPassword.digest().toHex();
+    // const hashPassword = forge.hmac.create();
+    // hashPassword.start('sha256', process.env.PASSWORD_KEY);
+    // hashPassword.update(password);
+    // return hashPassword.digest().toHex();
+
+    const hashPassword = createHmac('sha256', process.env.PASSWORD_KEY)
+      .update(password)
+      .digest('hex');
+    return hashPassword;
   }
 
   async signup({ email, password, name, phone }: ISignUpBody) {
@@ -25,7 +31,7 @@ export class AuthService {
       throw new ConflictException();
     }
 
-    const hashedPassword = this.hasedPassword(password);
+    const hashedPassword = await this.hasedPassword(password);
 
     const user = await this.connectionService.user.create({
       data: {

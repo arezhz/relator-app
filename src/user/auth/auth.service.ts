@@ -1,7 +1,6 @@
 import { ConnectionService } from './../../connection/connection.service';
 import { Injectable, ConflictException } from '@nestjs/common';
 import { ISignUpBody } from './models/i-auth.model';
-import * as forge from 'node-forge';
 import { UserType } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import { createHmac } from 'node:crypto';
@@ -11,11 +10,6 @@ export class AuthService {
   constructor(private readonly connectionService: ConnectionService) { }
 
   hasedPassword(password: string): string {
-    // const hashPassword = forge.hmac.create();
-    // hashPassword.start('sha256', process.env.PASSWORD_KEY);
-    // hashPassword.update(password);
-    // return hashPassword.digest().toHex();
-
     const hashPassword = createHmac('sha256', process.env.PASSWORD_KEY)
       .update(password)
       .digest('hex');

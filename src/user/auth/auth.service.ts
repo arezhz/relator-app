@@ -1,19 +1,21 @@
+import { ProductKeyDto } from './../dtos/auth.dto';
 import { ConnectionService } from './../../connection/connection.service';
 import { Injectable, ConflictException, HttpException } from '@nestjs/common';
 import { IJwtGenerator, ISignInBody, ISignUpBody } from './models/i-auth.model';
-import { UserType } from '@prisma/client';
+import { User, UserType } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import { createHmac } from 'node:crypto';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly connectionService: ConnectionService) { }
 
-  hasedPassword(password: string): string {
-    const hashPassword = createHmac('sha256', process.env.PASSWORD_KEY)
+  hasedHandler(password: string, secretKey: string): string {
+    const hashResult = createHmac('sha256', secretKey)
       .update(password)
       .digest('hex');
-    return hashPassword;
+    return hashResult;
   }
 
   jwtGenerator({ id, email }: IJwtGenerator): string {
@@ -29,7 +31,26 @@ export class AuthService {
     );
   }
 
-  async signup({ email, password, name, phone }: ISignUpBody) {
+  async signup(
+    { email, password, name, phone, productKey }: ISignUpBody,
+    userType: UserType,
+  ) {
+    if (userType !== UserType.BUYER) {
+      if (!productKey) {
+        throw new UnauthorizedException();
+      }
+
+      const productKeyString = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
+      const hashKey = await this.hasedHandler(
+        productKeyString,
+        process.env.PRODUCT_KEY_SECRET,
+      );
+
+      if (hashKey !== productKey) {
+        throw new UnauthorizedException();
+      }
+    }
+
     const existEmail = await this.connectionService.user.findUnique({
       where: { email },
     });
@@ -38,7 +59,10 @@ export class AuthService {
       throw new ConflictException();
     }
 
-    const hashedPassword = await this.hasedPassword(password);
+    const hashedPassword = await this.hasedHandler(
+      password,
+      process.env.PASSWORD_KEY,
+    );
 
     const user = await this.connectionService.user.create({
       data: {
@@ -46,7 +70,7 @@ export class AuthService {
         name,
         phone,
         password: hashedPassword,
-        user_type: UserType.BUYER,
+        user_type: userType,
       },
     });
 
@@ -68,7 +92,10 @@ export class AuthService {
     if (!user) {
       throw new HttpException('The email or Password is wrong!', 400);
     }
-    const hashedPassword = await this.hasedPassword(password);
+    const hashedPassword = await this.hasedHandler(
+      password,
+      process.env.PASSWORD_KEY,
+    );
     const correctPassword = !!(user.password === hashedPassword);
 
     if (!correctPassword) {
@@ -82,5 +109,14 @@ export class AuthService {
     const token = await this.jwtGenerator(jwtBody);
 
     return token;
+  }
+
+  async generateProductKey(email: string, userType: UserType) {
+    const productKeyString = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
+    const hashKey = await this.hasedHandler(
+      productKeyString,
+      process.env.PRODUCT_KEY_SECRET,
+    );
+    return hashKey;
   }
 }

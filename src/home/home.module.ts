@@ -1,10 +1,17 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { HomeService } from './home.service';
 import { HomeController } from './home.controller';
 import { ConnectionModule } from 'src/connection/connection.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
-  providers: [HomeService],
+  providers: [
+    HomeService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
+  ],
   controllers: [HomeController],
   imports: [ConnectionModule],
 })

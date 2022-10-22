@@ -29,6 +29,8 @@ export class AllHomesDto {
     return this.listed_date;
   }
 
+  image: string | null;
+
   price: number;
   @Exclude()
   land_size: number;

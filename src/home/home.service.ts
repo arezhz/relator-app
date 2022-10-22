@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConnectionService } from 'src/connection/connection.service';
 import { AllHomesDto } from './dtos/home.dto';
+import { IAllHomesFilters } from './models/i-all-homes-filters';
 
 @Injectable()
 export class HomeService {
   constructor(private readonly connectionService: ConnectionService) { }
-  async getAllHomes(): Promise<AllHomesDto[]> {
+  async getAllHomes(filters: IAllHomesFilters): Promise<AllHomesDto[]> {
     const homes = await this.connectionService.home.findMany({
       select: {
         id: true,
@@ -24,6 +25,7 @@ export class HomeService {
           take: 1,
         },
       },
+      where: filters,
     });
     return homes.map((m) => {
       const fetchData = {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConnectionService } from 'src/connection/connection.service';
 import { AllHomesDto } from './dtos/home.dto';
 import { IAllHomesFilters } from './models/i-all-homes-filters';
@@ -36,5 +36,16 @@ export class HomeService {
       delete fetchData.Images;
       return new AllHomesDto(fetchData);
     });
+  }
+  async getHome(id: number): Promise<AllHomesDto> {
+    const home = this.connectionService.home.findUnique({
+      where:{id}
+    })
+
+    if(!home) {
+      throw new NotFoundException('The email or Password is wrong!');
+    }
+
+    return home;
   }
 }

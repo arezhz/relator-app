@@ -12,10 +12,9 @@ export class AuthService {
   constructor(private readonly connectionService: ConnectionService) { }
 
   hasedHandler(password: string, secretKey: string): string {
-    const hashResult = createHmac('sha256', secretKey)
+    return createHmac('sha256', secretKey)
       .update(password)
       .digest('hex');
-    return hashResult;
   }
 
   jwtGenerator({ id, email }: IJwtGenerator): string {
@@ -78,9 +77,7 @@ export class AuthService {
       id: user.id,
       email,
     };
-    const token = await this.jwtGenerator(jwtBody);
-
-    return token;
+    return await this.jwtGenerator(jwtBody);
   }
 
   async signin({ email, password }: ISignInBody) {
@@ -106,17 +103,14 @@ export class AuthService {
       email,
     };
 
-    const token = await this.jwtGenerator(jwtBody);
-
-    return token;
+    return await this.jwtGenerator(jwtBody);
   }
 
   async generateProductKey(email: string, userType: UserType) {
     const productKeyString = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
-    const hashKey = await this.hasedHandler(
+    return await this.hasedHandler(
       productKeyString,
       process.env.PRODUCT_KEY_SECRET,
     );
-    return hashKey;
   }
 }

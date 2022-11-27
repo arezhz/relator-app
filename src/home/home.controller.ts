@@ -1,5 +1,5 @@
 import { HomePropertyType } from '@prisma/client';
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { AllHomesDto } from './dtos/home.dto';
 import { HomeService } from './home.service';
 
@@ -27,5 +27,11 @@ export class HomeController {
       ...(propertyType && { propertyType }),
     };
     return this.homeService.getAllHomes(queryParams);
+  }
+  @Get('/:id')
+  getHome(
+    @Param('id', ParseIntPipe) id: number
+  ) {
+    this.homeService.getHome(id);
   }
 }

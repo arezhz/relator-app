@@ -112,6 +112,11 @@ export class SingleHomeDto {
   @Exclude()
   relator_id: number;
 
+  relator: {
+    name:string;
+    email:string;
+    phone: string;
+  }
   constructor(partial: Partial<SingleHomeDto>) {
     Object.assign(this, partial);
   }

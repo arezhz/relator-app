@@ -28,10 +28,10 @@ export class HomeController {
     };
     return this.homeService.getAllHomes(queryParams);
   }
-  @Get('/:id')
+  @Get(':id')
   getHome(
     @Param('id', ParseIntPipe) id: number
   ) {
-    this.homeService.getHome(id);
+    return this.homeService.getHome(id);
   }
 }

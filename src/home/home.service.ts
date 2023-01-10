@@ -5,7 +5,7 @@ import { IAllHomesFilters } from './models/i-all-homes-filters';
 
 @Injectable()
 export class HomeService {
-  constructor(private readonly connectionService: ConnectionService) { }
+  constructor(private readonly connectionService: ConnectionService) {}
   async getAllHomes(filters: IAllHomesFilters): Promise<AllHomesDto[]> {
     const homes = await this.connectionService.home.findMany({
       select: {
@@ -38,7 +38,6 @@ export class HomeService {
     });
   }
 
-
   async getHome(id: number): Promise<SingleHomeDto> {
     const home = await this.connectionService.home.findUnique({
       select: {
@@ -56,40 +55,37 @@ export class HomeService {
             url: true,
           },
         },
-        relator:{
-          select:{
-            name:true,
+        relator: {
+          select: {
+            name: true,
             email: true,
             phone: true,
-          }
-        }
+          },
+        },
       },
-      where:{id}
-    })
+      where: { id },
+    });
 
-    if(!home) {
+    if (!home) {
       throw new NotFoundException('The email or Password is wrong!');
     }
-    
+
     let images: string[] | null = [];
-    if(home.Images.length > 0) {
-      home.Images.forEach(image => {
-        images.push(image.url)
-      })
+    if (home.Images.length > 0) {
+      home.Images.forEach((image) => {
+        images.push(image.url);
+      });
     } else {
       images = null;
     }
-    
 
     const finalResult = {
       ...home,
       images,
-    }
+    };
 
-    console.log(finalResult);
-    
-    delete finalResult.Images
-    
+    delete finalResult.Images;
+
     return new SingleHomeDto(finalResult);
   }
 }

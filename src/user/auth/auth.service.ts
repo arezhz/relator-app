@@ -1,4 +1,3 @@
-import { ProductKeyDto } from './../dtos/auth.dto';
 import { ConnectionService } from './../../connection/connection.service';
 import { Injectable, ConflictException, HttpException } from '@nestjs/common';
 import { IJwtGenerator, ISignInBody, ISignUpBody } from './models/i-auth.model';
@@ -9,12 +8,10 @@ import { UnauthorizedException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly connectionService: ConnectionService) { }
+  constructor(private readonly connectionService: ConnectionService) {}
 
-  hasedHandler(password: string, secretKey: string): string {
-    return createHmac('sha256', secretKey)
-      .update(password)
-      .digest('hex');
+  hashedHandler(password: string, secretKey: string): string {
+    return createHmac('sha256', secretKey).update(password).digest('hex');
   }
 
   jwtGenerator({ id, email }: IJwtGenerator): string {
@@ -40,7 +37,7 @@ export class AuthService {
       }
 
       const productKeyString = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
-      const hashKey = await this.hasedHandler(
+      const hashKey = this.hashedHandler(
         productKeyString,
         process.env.PRODUCT_KEY_SECRET,
       );
@@ -58,7 +55,7 @@ export class AuthService {
       throw new ConflictException();
     }
 
-    const hashedPassword = await this.hasedHandler(
+    const hashedPassword = this.hashedHandler(
       password,
       process.env.PASSWORD_KEY,
     );
@@ -77,7 +74,7 @@ export class AuthService {
       id: user.id,
       email,
     };
-    return await this.jwtGenerator(jwtBody);
+    return this.jwtGenerator(jwtBody);
   }
 
   async signin({ email, password }: ISignInBody) {
@@ -89,11 +86,11 @@ export class AuthService {
     if (!user) {
       throw new HttpException('The email or Password is wrong!', 400);
     }
-    const hashedPassword = await this.hasedHandler(
+    const hashedPassword = this.hashedHandler(
       password,
       process.env.PASSWORD_KEY,
     );
-    const correctPassword = !!(user.password === hashedPassword);
+    const correctPassword = user.password === hashedPassword;
 
     if (!correctPassword) {
       throw new HttpException('The email or Password is wrong!', 400);
@@ -103,14 +100,11 @@ export class AuthService {
       email,
     };
 
-    return await this.jwtGenerator(jwtBody);
+    return this.jwtGenerator(jwtBody);
   }
 
   async generateProductKey(email: string, userType: UserType) {
     const productKeyString = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
-    return await this.hasedHandler(
-      productKeyString,
-      process.env.PRODUCT_KEY_SECRET,
-    );
+    return this.hashedHandler(productKeyString, process.env.PRODUCT_KEY_SECRET);
   }
 }

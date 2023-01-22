@@ -2,10 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConnectionService } from './../connection/connection.service';
 import { AllHomesDto, SingleHomeDto } from './dtos/home.dto';
 import { IAllHomesFilters } from './models/i-all-homes-filters';
+import { ICreateHomeModel } from './models/i-create-home-model';
 
 @Injectable()
 export class HomeService {
   constructor(private readonly connectionService: ConnectionService) {}
+
   async getAllHomes(filters: IAllHomesFilters): Promise<AllHomesDto[]> {
     const homes = await this.connectionService.home.findMany({
       select: {
@@ -87,5 +89,37 @@ export class HomeService {
     delete finalResult.Images;
 
     return new SingleHomeDto(finalResult);
+  }
+
+  async createHome(data: ICreateHomeModel) {
+    const {
+      address,
+      numberOfBedrooms,
+      numberOfBathrooms,
+      city,
+      price,
+      landSize,
+      propertyType,
+      images,
+    } = data;
+    const home = await this.connectionService.home.create({
+      data: {
+        address,
+        number_of_bedrooms: numberOfBedrooms,
+        number_of_bathrooms: numberOfBathrooms,
+        city,
+        price,
+        land_size: landSize,
+        property_type: propertyType,
+        relator_id: 1,
+        Images: {
+          createMany: {
+            data: [...images],
+          },
+        },
+      },
+    });
+
+    return home.id;
   }
 }

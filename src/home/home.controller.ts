@@ -1,11 +1,20 @@
 import { HomePropertyType } from '@prisma/client';
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { AllHomesDto } from './dtos/home.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { AllHomesDto, CreateHomeDto } from './dtos/home.dto';
 import { HomeService } from './home.service';
 
 @Controller('home')
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
+
   @Get()
   getAllHomes(
     @Query('city') city?: string,
@@ -28,10 +37,14 @@ export class HomeController {
     };
     return this.homeService.getAllHomes(queryParams);
   }
+
   @Get(':id')
-  getHome(
-    @Param('id', ParseIntPipe) id: number
-  ) {
+  getHome(@Param('id', ParseIntPipe) id: number) {
     return this.homeService.getHome(id);
+  }
+
+  @Post()
+  createHome(@Body() body: CreateHomeDto) {
+    return this.homeService.createHome(body);
   }
 }

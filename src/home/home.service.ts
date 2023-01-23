@@ -3,6 +3,7 @@ import { ConnectionService } from './../connection/connection.service';
 import { AllHomesDto, SingleHomeDto } from './dtos/home.dto';
 import { IAllHomesFilters } from './models/i-all-homes-filters';
 import { ICreateHomeModel } from './models/i-create-home-model';
+import { IModifyHomeModel } from './models/i-modify-home-model';
 
 @Injectable()
 export class HomeService {
@@ -121,5 +122,48 @@ export class HomeService {
     });
 
     return home.id;
+  }
+
+  async modifyHome(homeId: number, body: IModifyHomeModel) {
+    const data = {
+      ...body,
+      number_of_bedrooms: body.numberOfBedrooms,
+      number_of_bathrooms: body.numberOfBathrooms,
+      land_size: body.landSize,
+      property_type: body.propertyType,
+    };
+    const home = await this.connectionService.home.findUnique({
+      where: {
+        id: homeId,
+      },
+    });
+    if (!home) {
+      throw new NotFoundException('The email or Password is wrong!');
+    }
+    const response = await this.connectionService.home.update({
+      where: {
+        id: homeId,
+      },
+      data,
+    });
+
+    return response.id;
+  }
+
+  async removeHome(homeId: number) {
+    const deleteHomeImages = this.connectionService.images.deleteMany({
+      where: {
+        home_id: homeId,
+      },
+    });
+    const deleteHome = this.connectionService.home.delete({
+      where: {
+        id: homeId,
+      },
+    });
+
+    await this.connectionService.$transaction([deleteHomeImages, deleteHome]);
+
+    return homeId;
   }
 }

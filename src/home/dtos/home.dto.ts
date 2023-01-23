@@ -4,11 +4,11 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
+  IsNumber, IsOptional,
   IsPositive,
   IsString,
-  ValidateNested,
-} from 'class-validator';
+  ValidateNested
+} from "class-validator";
 
 export class AllHomesDto {
   id: number;
@@ -167,4 +167,34 @@ export class CreateHomeDto {
   @ValidateNested({ each: true })
   @Type(() => Image)
   images: Image[];
+}
+
+export class ModifyHomeDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  numberOfBedrooms: number;
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  numberOfBathrooms: number;
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  price: number;
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  landSize: number;
+  @IsOptional()
+  @IsEnum(HomePropertyType)
+  propertyType: HomePropertyType;
 }

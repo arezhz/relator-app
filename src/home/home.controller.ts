@@ -5,10 +5,11 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { AllHomesDto, CreateHomeDto } from './dtos/home.dto';
+import { AllHomesDto, CreateHomeDto, ModifyHomeDto } from './dtos/home.dto';
 import { HomeService } from './home.service';
 
 @Controller('home')
@@ -46,5 +47,13 @@ export class HomeController {
   @Post()
   createHome(@Body() body: CreateHomeDto) {
     return this.homeService.createHome(body);
+  }
+
+  @Patch(':id')
+  modifyHome(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: ModifyHomeDto,
+  ) {
+    return this.homeService.modifyHome(id, body);
   }
 }

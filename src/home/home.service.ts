@@ -149,4 +149,21 @@ export class HomeService {
 
     return response.id;
   }
+
+  async removeHome(homeId: number) {
+    const deleteHomeImages = this.connectionService.images.deleteMany({
+      where: {
+        home_id: homeId,
+      },
+    });
+    const deleteHome = this.connectionService.home.delete({
+      where: {
+        id: homeId,
+      },
+    });
+
+    await this.connectionService.$transaction([deleteHomeImages, deleteHome]);
+
+    return homeId;
+  }
 }

@@ -2,6 +2,7 @@ import { HomePropertyType } from '@prisma/client';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -55,5 +56,10 @@ export class HomeController {
     @Body() body: ModifyHomeDto,
   ) {
     return this.homeService.modifyHome(id, body);
+  }
+
+  @Delete(':id')
+  removeHome(@Param('id', ParseIntPipe) id: number) {
+    return this.homeService.removeHome(id);
   }
 }
